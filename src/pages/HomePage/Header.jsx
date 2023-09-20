@@ -1,9 +1,45 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Icon } from "@iconify/react";
-import { headerItem, cartListData } from "../../Helpers/Constants";
+import { headerItem, productType } from "../../Helpers/Constants";
 import CartProduct from "../../components/CartProduct";
+import CartApi from "../../api/Cart.Api";
 
 const Header = () => {
+  // data product by value
+  const [dataProduct, setDataProduct] = useState([]);
+
+  // data by get api
+  const [data, setData] = useState([]);
+
+  // data which showing statu by condition
+  const [activeProductType, setActiveProductType] = useState();
+
+  // get api allCarts
+  const allCarts = () => {
+    CartApi.getAllCarts()
+      .then((res) => {
+        setData(res?.data);
+        console.log(res?.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  useEffect(() => {
+    allCarts();
+  }, []);
+
+  const handleClick = (type) => {
+    setActiveProductType(type);
+    setDataProduct(filteredData);
+  };
+
+  const filteredData = activeProductType
+    ? data.filter((item) => item.type === activeProductType)
+    : data;
+
   return (
     <div className="bg-[#ffffff] paddingXShorter paddingYShorter min-h-screen">
       <div className="w-full flex justify-between">
@@ -37,17 +73,46 @@ const Header = () => {
             <Icon icon="mdi:cart-discount" width={100} color="#000000" />
           </div>
 
+          {/* filtering by value */}
+          <div className="flex justify-between text-[#000000]">
+            <div className="flex justify-start gap-4">
+              {productType?.map((e) => {
+                return (
+                  <p
+                    className={`${
+                      activeProductType === e?.value
+                        ? "underline"
+                        : "no-underline"
+                    } cursor-pointer`}
+                    onClick={() => handleClick(e?.value)}
+                  >
+                    {e?.label}
+                  </p>
+                );
+              })}
+            </div>
+            <p
+              onClick={() => {
+                setActiveProductType(undefined); // kenapa und, karena sesuai logic di atas
+              }}
+              className="cursor-pointer"
+            >
+              Показать Все
+            </p>
+          </div>
           {/* katalog */}
           <article className="grid grid-cols-4 gap-4">
-            {cartListData?.map((e) => {
+            {filteredData?.map((e) => {
               return (
-                <CartProduct
-                  img={e?.thumbnailUrl}
-                  titleProduct={e?.name}
-                  rate={e?.rate}
-                  status={e?.quantity}
-                  price={e?.price}
-                />
+                <Link to={`/product/${e?.id}`}>
+                  <CartProduct
+                    img={e?.thumbnailUrl}
+                    titleProduct={e?.name}
+                    rate={e?.rate}
+                    status={e?.quantity}
+                    price={e?.price}
+                  />
+                </Link>
               );
             })}
           </article>
