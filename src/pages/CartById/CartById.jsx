@@ -27,8 +27,13 @@ const CartById = () => {
 
   return (
     <div className="flex justify-between w-full paddingX paddingY bg-[#ffffff]">
-      <CardProductDetails img={data?.thumbnailUrl} productName={data?.name} />
-      <CartPrice />
+      <CardProductDetails
+        img={data?.thumbnailUrl}
+        productName={data?.name}
+        rate={data?.rate}
+        total={data?.quantity}
+      />
+      <CartPrice price={data?.price} data={data} />
     </div>
   );
 };
